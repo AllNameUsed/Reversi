@@ -4,246 +4,80 @@ def calculate_score(board):
     black_score = np.count_nonzero(board == 'B')
     white_score = np.count_nonzero(board == 'W')
     return black_score, white_score
-def score_valid_move(board, row, col, color):
-    return
+
+
 def play_move(board, row, col, color):
-    board[row, col] = color
-    seen_opposite = False
-    current_row = row - 1
-    working_mem = []
-    while 0 <= current_row <= 7:
-        if not board[current_row, col] or board[row-1, col] == color:
-            break
-        elif board[current_row, col] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                working_mem = []
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((current_row, col))
-        current_row -= 1
-    
-    current_row = row + 1
-    working_mem = []
-    while 0 <= current_row <= 7:
-        if not board[current_row, col] or board[row+1, col] == color:
-            break
-        elif board[current_row, col] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((current_row, col))
-        current_row += 1
-    
-        
-    current_col = col - 1
-    working_mem = []
-    while 0 <= current_col <= 7:
-        if not board[row, current_col] or board[row, col - 1] == color:
-            break
-        elif board[row, current_col] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((row, current_col))
-        current_col -= 1
-        
-    current_col = col + 1
-    working_mem = []
-    while 0 <= current_col <= 7:
-        if not board[row, current_col]:
-            break
-        elif board[row, current_col] == color or board[row, col + 1] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((row, current_col))
-        current_col += 1
-        
-    current_row = row + 1
-    current_col = col + 1
-    working_mem = []
-    while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-        if not board[current_row, current_col] or board[row +1, col+1] == color:
-            break
-        elif board[current_row, current_col] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((current_row, current_col))
-        current_row += 1
-        current_col += 1
-        
-    current_row = row - 1
-    current_col = col - 1
-    working_mem = []
-    while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-        if not board[current_row, current_col] or board[row-1, col-1] == color:
-            break
-        elif board[current_row, current_col] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((current_row, current_col))
-        current_row -= 1
-        current_col -= 1
-        
-    current_row = row + 1
-    current_col = col - 1
-    working_mem = []
-    while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-        if not board[current_row, current_col] or board[row+1, col -1] == color:
-            break
-        elif board[current_row, current_col] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((current_row, current_col))
-        current_row += 1
-        current_col -= 1
-        
-    current_row = row - 1
-    current_col = col + 1
-    working_mem = []
-    while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-        if not board[current_row, current_col] or board[row-1, col+1]==color:
-            break
-        elif board[current_row, current_col] == color:
-            if seen_opposite:
-                for x,y in working_mem:
-                    board[x, y] = color
-                break
-        else:
-            seen_opposite = True
-            working_mem.append((current_row, current_col))
-        current_row -= 1
-        current_col += 1
+    board[row, col] = color  # Place the piece
+    opponent_color = 'B' if color == 'W' else 'W'
+
+    directions = [(-1, 0),  # Up
+                  (1, 0),   # Down
+                  (0, -1),  # Left
+                  (0, 1),   # Right
+                  (-1, -1), # Up-Left
+                  (-1, 1),  # Up-Right
+                  (1, -1),  # Down-Left
+                  (1, 1)]   # Down-Right
+
+    for dr, dc in directions:
+        seen_opposite = False
+        positions_to_flip = []
+        current_row, current_col = row + dr, col + dc
+
+        while 0 <= current_row < 8 and 0 <= current_col < 8:
+            current_cell = board[current_row, current_col]
+            if current_cell is None:
+                break  # Empty cell, stop searching in this direction
+            elif current_cell == opponent_color:
+                seen_opposite = True
+                positions_to_flip.append((current_row, current_col))
+            elif current_cell == color:
+                if seen_opposite:
+                    # Flip all opponent pieces in this direction
+                    for r, c in positions_to_flip:
+                        board[r, c] = color
+                break  # Found own piece, stop searching in this direction
+            else:
+                break  # Cell contains invalid value (should not happen)
+            current_row += dr
+            current_col += dc
     return board
 
+
 def is_valid_move(board, row, col, color):
-        # Check if placing at (row, col) is valid
-        # Implement game rules here
-        if not board[row][col] is None:
-            return False
-        else:
-            seen_opposite = False
-            current_row = row - 1
-            while 0 <= current_row <= 7:
-                if not board[current_row, col] or board[row-1, col] == color:
-                    break
-                elif board[current_row, col] == color:
-                    if seen_opposite:
-                        return True
+    if board[row][col] is not None:
+        return False  # The cell is already occupied
+
+    opponent_color = 'B' if color == 'W' else 'W'
+    directions = [(-1, 0),  # Up
+                  (1, 0),   # Down
+                  (0, -1),  # Left
+                  (0, 1),   # Right
+                  (-1, -1), # Up-Left
+                  (-1, 1),  # Up-Right
+                  (1, -1),  # Down-Left
+                  (1, 1)]   # Down-Right
+
+    for dr, dc in directions:
+        current_row, current_col = row + dr, col + dc
+        seen_opponent = False  # Reset for each direction
+
+        while 0 <= current_row < 8 and 0 <= current_col < 8:
+            current_cell = board[current_row][current_col]
+            if current_cell == opponent_color:
+                seen_opponent = True
+            elif current_cell == color:
+                if seen_opponent:
+                    return True  # Valid move in this direction
                 else:
-                    seen_opposite = True
-                current_row -= 1
-            
-            current_row = row + 1
-            while 0 <= current_row <= 7:
-                if not board[current_row, col] or board[row+1, col] == color:
-                    break
-                elif board[current_row, col] == color:
-                    if seen_opposite:
-                        return True
-                else:
-                    seen_opposite = True
-                current_row += 1
-            
-                
-            current_col = col - 1
-            while 0 <= current_col <= 7:
-                if not board[row, current_col] or board[row, col - 1] == color:
-                    break
-                elif board[row, current_col] == color:
-                    if seen_opposite:
-                        return True
-                else:
-                    seen_opposite = True
-                current_col -= 1
-                
-            current_col = col + 1
-            while 0 <= current_col <= 7:
-                if not board[row, current_col]:
-                    break
-                elif board[row, current_col] == color or board[row, col + 1] == color:
-                    if seen_opposite:
-                        return True
-                else:
-                    seen_opposite = True
-                current_col += 1
-                
-            current_row = row + 1
-            current_col = col + 1
-            while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-                if not board[current_row, current_col] or board[row +1, col+1] == color:
-                    break
-                elif board[current_row, current_col] == color:
-                    if seen_opposite:
-                        return True
-                else:
-                    seen_opposite = True
-                current_row += 1
-                current_col += 1
-                
-            current_row = row - 1
-            current_col = col - 1
-            while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-                if not board[current_row, current_col] or board[row-1, col-1] == color:
-                    break
-                elif board[current_row, current_col] == color:
-                    if seen_opposite:
-                        return True
-                else:
-                    seen_opposite = True
-                current_row -= 1
-                current_col -= 1
-                
-            current_row = row + 1
-            current_col = col - 1
-            while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-                if not board[current_row, current_col] or board[row+1, col -1] == color:
-                    break
-                elif board[current_row, current_col] == color:
-                    if seen_opposite:
-                        return True
-                else:
-                    seen_opposite = True
-                current_row += 1
-                current_col -= 1
-                
-            current_row = row - 1
-            current_col = col + 1
-            while 0 <= current_row <= 7 and 0 <= current_col <= 7:
-                if not board[current_row, current_col] or board[row-1, col+1]==color:
-                    break
-                elif board[current_row, current_col] == color:
-                    if seen_opposite:
-                        return True
-                else:
-                    seen_opposite = True
-                current_row -= 1
-                current_col += 1
-            return False
+                    break  # Adjacent cell is own color without enclosing opponent's pieces
+            else:
+                break  # Empty cell or invalid, stop searching this direction
+            current_row += dr
+            current_col += dc
+
+    return False  # No valid moves in any direction
+
         
 def all_valid_moves(board, color):
     # Return a list of valid moves for the given color
