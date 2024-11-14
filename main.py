@@ -278,6 +278,7 @@ def main():
 
         # Check if the game is over
         if is_game_over(board):
+            black_score, white_score = calculate_score(board)
             game_over_screen(black_score, white_score)
             reset_game()
             ai_player = AIPlayer(ai_difficulty, 'W')  # Reset AI player in case settings changed
